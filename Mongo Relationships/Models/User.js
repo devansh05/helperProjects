@@ -1,3 +1,4 @@
+//450 ONE TO FEW : Small num of data sets insert directly to obj
 const mongoose = require('mongoose');
 
 //Initiating db connection
