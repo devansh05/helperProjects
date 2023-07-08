@@ -4,8 +4,10 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
 app.use(cookieParser('secretKey'));
+app.use(session({secret: 'sessionSecretKey'}));
 app.use('/dashboard', dashboardRoutes);
 app.use('/user', dashboardRoutes);
 app.use('/admin', adminRoutes);
@@ -28,6 +30,16 @@ app.get('/signCookies', (req, res) => {
 app.get('/verifyCookies', (req, res) => {
     const { signed } = req.signedCookies;
     res.send(signed)
+})
+
+app.get('/viewCount', (req, res) => {
+    console.log('LOG session created ', req.session)
+    if(req.session.count){
+        req.session.count += 1;
+    } else {
+        req.session.count = 1;
+    }
+    res.send(`You have viewed this page for ${req.session.count} times.`)
 })
 
 app.listen(3000, () => {
