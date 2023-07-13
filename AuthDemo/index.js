@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'secretTestingKey', resave: false, saveUninitialized: false }))
 
 const requireLogin = (req, res, next) => {
-  if(!req.session.user_id){
+  if (!req.session.user_id) {
     return res.redirect('/login');
   }
   next();
@@ -40,17 +40,13 @@ app.get('/login', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const user = await User.findOne({ username });
-  if (user) {
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (isValidPassword) {
-      req.session.user_id = user._id;
-      res.redirect('/');
-    } else {
-      res.send('Invalid username or password.');
-    }
+  const foundUser = await User.findAndValidate(username, password);
+
+  if (foundUser) {
+    req.session.user_id = foundUser._id;
+    res.redirect('/');
   } else {
-    res.send('Invalid username or password.');
+    res.redirect('/login');
   }
 
 })
@@ -75,11 +71,7 @@ app.post('/logout', (req, res) => {
 
 app.post('/register', async (req, res) => {
   const { password, username } = req.body;
-  const hash = await bcrypt.hash(password, 12);
-  const user = new User({
-    username,
-    password: hash
-  })
+  const user = new User({ username, password })
   await user.save();
   req.session.user_id = user._id;
   res.redirect('/')
