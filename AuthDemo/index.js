@@ -21,7 +21,7 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: 'secretTestingKey', resave: false, saveUninitialized: false}))
+app.use(session({ secret: 'secretTestingKey', resave: false, saveUninitialized: false }))
 
 app.get('/register', async (req, res) => {
   res.render('register');
@@ -49,7 +49,7 @@ app.post('/login', async (req, res) => {
 })
 
 app.get('/secret', (req, res) => {
-  if(req.session.user_id){
+  if (req.session.user_id) {
     res.send('Secret Key')
   } else {
     res.redirect('/login')
@@ -57,7 +57,13 @@ app.get('/secret', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Home Page');
+  res.render('home');
+})
+
+app.post('/logout', (req, res) => {
+  req.session.user_id = null;
+  req.session.destroy();
+  res.redirect('/login');
 })
 
 app.post('/register', async (req, res) => {
