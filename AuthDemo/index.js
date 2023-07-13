@@ -23,6 +23,13 @@ app.set('views', 'views');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: 'secretTestingKey', resave: false, saveUninitialized: false }))
 
+const requireLogin = (req, res, next) => {
+  if(!req.session.user_id){
+    return res.redirect('/login');
+  }
+  next();
+}
+
 app.get('/register', async (req, res) => {
   res.render('register');
 })
@@ -48,7 +55,7 @@ app.post('/login', async (req, res) => {
 
 })
 
-app.get('/secret', (req, res) => {
+app.get('/secret', requireLogin, (req, res) => {
   if (req.session.user_id) {
     res.send('Secret Key')
   } else {
