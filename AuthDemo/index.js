@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const bcrypt = require('bcrypt');
-
+const session = require('express-session');
 
 //Mongo connection
 mongoose
@@ -21,6 +21,7 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: 'secretTestingKey', resave: false, saveUninitialized: false}))
 
 app.get('/register', async (req, res) => {
   res.render('register');
@@ -32,13 +33,12 @@ app.get('/login', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log('LOG username ', username)
   const user = await User.findOne({ username });
-  console.log('LOG user ', user)
   if (user) {
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (isValidPassword) {
-      res.redirect('/')
+      req.session.user_id = user._id;
+      res.redirect('/');
     } else {
       res.send('Invalid username or password.');
     }
@@ -49,7 +49,11 @@ app.post('/login', async (req, res) => {
 })
 
 app.get('/secret', (req, res) => {
-  res.send('Secret Key')
+  if(req.session.user_id){
+    res.send('Secret Key')
+  } else {
+    res.redirect('/login')
+  }
 });
 
 app.get('/', (req, res) => {
@@ -63,7 +67,8 @@ app.post('/register', async (req, res) => {
     username,
     password: hash
   })
-  await user.save()
+  await user.save();
+  req.session.user_id = user._id;
   res.redirect('/')
 })
 
