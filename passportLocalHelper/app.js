@@ -2,8 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const users = [{username: 'test', password: 'test'}];
-
+const users = require('./model');
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
@@ -19,8 +18,8 @@ passport.use(new LocalStrategy(
     (username, password, done) => {
         const user = users.find(u => u.username === username);
         if (!user) { return done(null, false, { message: 'Incorrect username.' }); }
-
-        if (user.password !== password) { // Simple string comparison, as we aren't using bcrypt
+        console.log('LOG  users ',users)
+        if (user.password !== password) {
             return done(null, false, { message: 'Incorrect password.' });
         }
         return done(null, user);
@@ -40,11 +39,13 @@ const landingPageRoute = require('./landingpage');
 const dashboardRoute = require('./dashboard');
 const loginRoute = require('./login');
 const profileRoute = require('./profile');
+const register = require('./register');
 
 app.use("/", landingPageRoute);
 app.use("/dashboard", dashboardRoute);
 app.use("/login", loginRoute);
-app.use("/profile", profileRoute)
+app.use("/profile", profileRoute);
+app.use("/register", register);
 
 
 const PORT = 3000;
