@@ -6,9 +6,9 @@ const router = express.Router()
 
 router.get('/',isLoggedIn, (req, res) => {
     console.log('LOG 1 ',req.isAuthenticated())
-    // if (!req.isAuthenticated()) {
-    //     return res.redirect('/login');
-    // }
+    if (!req.isAuthenticated()) {
+        return res.redirect('/login');
+    }
     res.send(`Profile`);
 });
 
